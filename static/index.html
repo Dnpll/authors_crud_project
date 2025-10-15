@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Authors CRUD</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; }
+    input, textarea { margin: 5px 0; width: 100%; box-sizing: border-box; padding: 8px; }
+    .row { display: flex; gap: 10px; }
+    .row > input { flex: 1; }
+    button { margin-top: 8px; padding: 8px 12px; }
+    li { margin-bottom: 10px; }
+    pre { white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>🖋️ Authors CRUD App</h1>
+
+  <div>
+    <input id="name" placeholder="Name">
+    <div class="row">
+      <input id="country" placeholder="Country">
+      <input id="birth_year" placeholder="Birth year" type="number">
+    </div>
+    <textarea id="bio" placeholder="Short biography"></textarea>
+    <input type="hidden" id="editId">
+    <button id="addSaveBtn" onclick="addOrSaveAuthor()">Add</button>
+  </div>
+
+  <h2>Authors</h2>
+  <ul id="authorList"></ul>
+
+<script>
+async function loadAuthors() {
+  const res = await fetch('/authors');
+  const authors = await res.json();
+  const list = document.getElementById('authorList');
+  list.innerHTML = '';
+  authors.forEach(a => {
+    const li = document.createElement('li');
+    li.innerHTML = `<strong>${escapeHtml(a.name)}</strong> (${escapeHtml(a.country)} - ${a.birth_year})<br>
+      <pre>${escapeHtml(a.bio)}</pre>
+      <button onclick="startEdit(${a.id})">Edit</button>
+      <button onclick="deleteAuthor(${a.id})">Delete</button>`;
+    list.appendChild(li);
+  });
+}
+
+function escapeHtml(text) {
+  if (!text && text !== 0) return '';
+  return text.toString()
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function startEdit(id) {
+  // fetch single author details from list
+  fetch('/authors')
+    .then(r => r.json())
+    .then(authors => {
+      const a = authors.find(x => x.id === id);
+      if (!a) return;
+      document.getElementById('name').value = a.name;
+      document.getElementById('country').value = a.country;
+      document.getElementById('birth_year').value = a.birth_year;
+      document.getElementById('bio').value = a.bio;
+      document.getElementById('editId').value = id;
+      document.getElementById('addSaveBtn').textContent = "Save";
+    });
+}
+
+async function addOrSaveAuthor() {
+  const name = document.getElementById('name').value.trim();
+  const country = document.getElementById('country').value.trim();
+  const birth_year = parseInt(document.getElementById('birth_year').value);
+  const bio = document.getElementById('bio').value.trim();
+  const editId = document.getElementById('editId').value;
+
+  if (!name || !country || !birth_year || !bio) return alert("All fields are required!");
+
+  if (editId) {
+    await fetch(`/authors/${editId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, country, birth_year, bio })
+    });
+  } else {
+    await fetch('/authors', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, country, birth_year, bio })
+    });
+  }
+
+  clearInputs();
+  loadAuthors();
+}
+
+async function deleteAuthor(id) {
+  if (!confirm('Delete author?')) return;
+  await fetch(`/authors/${id}`, { method: 'DELETE' });
+  loadAuthors();
+}
+
+function clearInputs() {
+  document.getElementById('name').value = '';
+  document.getElementById('country').value = '';
+  document.getElementById('birth_year').value = '';
+  document.getElementById('bio').value = '';
+  document.getElementById('editId').value = '';
+  document.getElementById('addSaveBtn').textContent = "Add";
+}
+
+loadAuthors();
+</script>
+</body>
+</html>
