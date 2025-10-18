@@ -7,6 +7,8 @@ import os
 import uvicorn
 
 app = FastAPI()
+
+# Папка для статических файлов
 app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "static")), name="static")
 
 DB_NAME = "/tmp/authors.db"
@@ -18,19 +20,20 @@ class Author(BaseModel):
 def init_db():
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
-    cur.execute("""CREATE TABLE IF NOT EXISTS authors (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        country TEXT
-    
-    )""")
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS authors (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            country TEXT NOT NULL
+        )
+    """)
     cur.execute("SELECT COUNT(*) FROM authors")
     if cur.fetchone()[0] == 0:
-     cur.executemany("INSERT INTO authors (name, country) VALUES (?, ?)", [
-        ("Ernest Hemingway", "United States"),
-        ("Jane Austen", "United Kingdom"),
-        ("Gabriel García Márquez", "Colombia")
-    ])
+        cur.executemany("INSERT INTO authors (name, country) VALUES (?, ?)", [
+            ("Ernest Hemingway", "United States"),
+            ("Jane Austen", "United Kingdom"),
+            ("Gabriel García Márquez", "Colombia")
+        ])
     conn.commit()
     conn.close()
 
@@ -44,7 +47,7 @@ def root():
 def get_authors():
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
-    cur.execute("SELECT id, name, country")
+    cur.execute("SELECT id, name, country FROM authors")
     authors = [{"id": r[0], "name": r[1], "country": r[2]} for r in cur.fetchall()]
     conn.close()
     return authors
@@ -53,8 +56,7 @@ def get_authors():
 def add_author(author: Author):
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
-    cur.execute("INSERT INTO authors (name, country) VALUES (?, ?)",
-                (author.name, author.country))
+    cur.execute("INSERT INTO authors (name, country) VALUES (?, ?)", (author.name, author.country))
     conn.commit()
     conn.close()
     return {"message": "Author added successfully"}
@@ -63,8 +65,7 @@ def add_author(author: Author):
 def update_author(author_id: int, author: Author):
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
-    cur.execute("UPDATE authors SET name=?, country=? WHERE id=?",
-                (author.name, author.country, author_id))
+    cur.execute("UPDATE authors SET name=?, country=? WHERE id=?", (author.name, author.country, author_id))
     if cur.rowcount == 0:
         conn.close()
         raise HTTPException(status_code=404, detail="Author not found")
