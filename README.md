@@ -2,25 +2,29 @@
 
 ## 1. Cel systemu
 
-Niniejszy system stanowi aplikację demonstracyjną typu **CRUD** (Create, Read, Update, Delete), przeznaczoną do zarządzania danymi autorów literackich.  
-System wykorzystuje środowisko **FastAPI** w języku **Python** oraz bazę danych **SQLite**.  
-Interfejs użytkownika został zaimplementowany w technologii **HTML + JavaScript**.
+Aplikacja Authors CRUD to prosty system demonstracyjny typu CRUD (Create, Read, Update, Delete), służący do zarządzania danymi autorów literackich.  
+System wykorzystuje FastAPI (Python) oraz bazę danych SQLite.  
+Interfejs użytkownika został przygotowany w technologii HTML + JavaScript.
 
 ---
 
 ## 2. Funkcjonalność systemu
 
-System zapewnia następujące funkcje operacyjne:
+System umożliwia:
 
-- Pobieranie listy wszystkich autorów z bazy danych.  
+- Pobieranie listy wszystkich autorów.  
 - Dodawanie nowego autora.  
-- Modyfikowanie istniejącego rekordu autora.  
+- Edytowanie istniejącego rekordu.  
 - Usuwanie autora.  
-- Automatyczną inicjalizację bazy danych przykładowymi wpisami podczas pierwszego uruchomienia systemu.  
+- Automatyczną inicjalizację bazy z przykładowymi danymi przy pierwszym uruchomieniu.
+
+Każdy autor zawiera następujące pola:
+
+| Pole | Typ | Opis |
+|------|------|------|
+| name | string | Imię i nazwisko autora |
+| country | string | Kraj pochodzenia |
+| birth_year | integer | Rok urodzenia |
+| bio | string | Krótka biografia |
 
 ---
-
-## 3. Wymagania programowe
-
-Zależności środowiskowe zostały określone w pliku `requirements.txt`:
-
