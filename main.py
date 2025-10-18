@@ -14,8 +14,6 @@ DB_NAME = "/tmp/authors.db"
 class Author(BaseModel):
     name: str
     country: str
-    birth_year: int
-    bio: str
 
 def init_db():
     conn = sqlite3.connect(DB_NAME)
@@ -23,17 +21,16 @@ def init_db():
     cur.execute("""CREATE TABLE IF NOT EXISTS authors (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
-        country TEXT,
-        birth_year INTEGER,
-        bio TEXT
+        country TEXT
+    
     )""")
     cur.execute("SELECT COUNT(*) FROM authors")
     if cur.fetchone()[0] == 0:
-        cur.executemany("INSERT INTO authors (name, country, birth_year, bio) VALUES (?, ?, ?, ?)", [
-            ("Leo Tolstoy", "Russia", 1828, "Russian writer, author of 'War and Peace' and 'Anna Karenina'."),
-            ("Jane Austen", "United Kingdom", 1775, "English novelist known for her six major novels."),
-            ("Gabriel García Márquez", "Colombia", 1927, "Colombian novelist, a key figure in magical realism.")
-        ])
+    cur.executemany("INSERT INTO authors (name, country, birth_year, bio) VALUES (?, ?, ?, ?)", [
+        ("Ernest Hemingway", "United States", 1899, "American novelist and short-story writer, known for 'The Old Man and the Sea' and 'A Farewell to Arms'."),
+        ("Jane Austen", "United Kingdom", 1775, "English novelist known for her works exploring themes of love, class, and society."),
+        ("Gabriel García Márquez", "Colombia", 1927, "Colombian novelist, a key figure in magical realism, best known for 'One Hundred Years of Solitude'.")
+    ])
     conn.commit()
     conn.close()
 
