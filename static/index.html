@@ -5,12 +5,11 @@
   <title>Authors CRUD</title>
   <style>
     body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; }
-    input, textarea { margin: 5px 0; width: 100%; box-sizing: border-box; padding: 8px; }
+    input { margin: 5px 0; width: 100%; box-sizing: border-box; padding: 8px; }
     .row { display: flex; gap: 10px; }
     .row > input { flex: 1; }
     button { margin-top: 8px; padding: 8px 12px; }
     li { margin-bottom: 10px; }
-    pre { white-space: pre-wrap; }
   </style>
 </head>
 <body>
@@ -20,8 +19,9 @@
     <input id="name" placeholder="Name">
     <div class="row">
       <input id="country" placeholder="Country">
-    <input type="hidden" id="editId">
-    <button id="addSaveBtn" onclick="addOrSaveAuthor()">Add</button>
+      <input type="hidden" id="editId">
+      <button id="addSaveBtn" onclick="addOrSaveAuthor()">Add</button>
+    </div>
   </div>
 
   <h2>Authors</h2>
@@ -35,8 +35,7 @@ async function loadAuthors() {
   list.innerHTML = '';
   authors.forEach(a => {
     const li = document.createElement('li');
-    li.innerHTML = `<strong>${escapeHtml(a.name)}</strong> (${escapeHtml(a.country)} - ${a.birth_year})<br>
-      <pre>${escapeHtml(a.bio)}</pre>
+    li.innerHTML = `<strong>${escapeHtml(a.name)}</strong> (${escapeHtml(a.country)})<br>
       <button onclick="startEdit(${a.id})">Edit</button>
       <button onclick="deleteAuthor(${a.id})">Delete</button>`;
     list.appendChild(li);
@@ -54,7 +53,6 @@ function escapeHtml(text) {
 }
 
 function startEdit(id) {
-  // fetch single author details from list
   fetch('/authors')
     .then(r => r.json())
     .then(authors => {
@@ -62,7 +60,6 @@ function startEdit(id) {
       if (!a) return;
       document.getElementById('name').value = a.name;
       document.getElementById('country').value = a.country;
-      
       document.getElementById('editId').value = id;
       document.getElementById('addSaveBtn').textContent = "Save";
     });
@@ -71,7 +68,6 @@ function startEdit(id) {
 async function addOrSaveAuthor() {
   const name = document.getElementById('name').value.trim();
   const country = document.getElementById('country').value.trim();
- 
   const editId = document.getElementById('editId').value;
 
   if (!name || !country) return alert("All fields are required!");
@@ -80,13 +76,13 @@ async function addOrSaveAuthor() {
     await fetch(`/authors/${editId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, country})
+      body: JSON.stringify({ name, country })
     });
   } else {
     await fetch('/authors', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, country})
+      body: JSON.stringify({ name, country })
     });
   }
 
@@ -103,7 +99,6 @@ async function deleteAuthor(id) {
 function clearInputs() {
   document.getElementById('name').value = '';
   document.getElementById('country').value = '';
-  
   document.getElementById('editId').value = '';
   document.getElementById('addSaveBtn').textContent = "Add";
 }
