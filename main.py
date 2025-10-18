@@ -26,10 +26,10 @@ def init_db():
     )""")
     cur.execute("SELECT COUNT(*) FROM authors")
     if cur.fetchone()[0] == 0:
-     cur.executemany("INSERT INTO authors (name, country, birth_year, bio) VALUES (?, ?, ?, ?)", [
-        ("Ernest Hemingway", "United States", 1899, "American novelist and short-story writer, known for 'The Old Man and the Sea' and 'A Farewell to Arms'."),
-        ("Jane Austen", "United Kingdom", 1775, "English novelist known for her works exploring themes of love, class, and society."),
-        ("Gabriel García Márquez", "Colombia", 1927, "Colombian novelist, a key figure in magical realism, best known for 'One Hundred Years of Solitude'.")
+     cur.executemany("INSERT INTO authors (name, country) VALUES (?, ?)", [
+        ("Ernest Hemingway", "United States"),
+        ("Jane Austen", "United Kingdom"),
+        ("Gabriel García Márquez", "Colombia")
     ])
     conn.commit()
     conn.close()
@@ -44,8 +44,8 @@ def root():
 def get_authors():
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
-    cur.execute("SELECT id, name, country, birth_year, bio FROM authors")
-    authors = [{"id": r[0], "name": r[1], "country": r[2], "birth_year": r[3], "bio": r[4]} for r in cur.fetchall()]
+    cur.execute("SELECT id, name, country")
+    authors = [{"id": r[0], "name": r[1], "country": r[2]} for r in cur.fetchall()]
     conn.close()
     return authors
 
@@ -53,8 +53,8 @@ def get_authors():
 def add_author(author: Author):
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
-    cur.execute("INSERT INTO authors (name, country, birth_year, bio) VALUES (?, ?, ?, ?)",
-                (author.name, author.country, author.birth_year, author.bio))
+    cur.execute("INSERT INTO authors (name, country) VALUES (?, ?)",
+                (author.name, author.country))
     conn.commit()
     conn.close()
     return {"message": "Author added successfully"}
@@ -63,8 +63,8 @@ def add_author(author: Author):
 def update_author(author_id: int, author: Author):
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
-    cur.execute("UPDATE authors SET name=?, country=?, birth_year=?, bio=? WHERE id=?",
-                (author.name, author.country, author.birth_year, author.bio, author_id))
+    cur.execute("UPDATE authors SET name=?, country=? WHERE id=?",
+                (author.name, author.country, author_id))
     if cur.rowcount == 0:
         conn.close()
         raise HTTPException(status_code=404, detail="Author not found")
